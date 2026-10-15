@@ -144,6 +144,10 @@ public sealed partial class SubtitleOcr
             // "П рекрасен" -> "Прекрасен", but keep real one-letter words ("В града", "I went", "A man").
             line = SplitCapitalRegex().Replace(line, m => OneLetterWords.Contains(m.Groups[2].Value, StringComparison.Ordinal) ? m.Value : m.Groups[1].Value + m.Groups[2].Value + m.Groups[3].Value);
             line = TrailingNoiseRegex().Replace(line, string.Empty).Trim();
+
+            // tesseract has no ♪ glyph: song lines come out as "tf Let me see", "f On Jupiter", "2 in other words".
+            line = LeadingNoteRegex().Replace(line, "♪ ");
+            line = TrailingNoteRegex().Replace(line, " ♪");
             if (line.Length > 0 && line.Any(char.IsLetterOrDigit))
             {
                 lines.Add(line);
@@ -167,4 +171,11 @@ public sealed partial class SubtitleOcr
 
     [GeneratedRegex(@"\s+[Il1]$")]
     private static partial Regex TrailingNoiseRegex();
+
+    // Tokens that are never words on their own; "2" only before a lowercase word.
+    [GeneratedRegex(@"^(?:(?:tf|ff|Jf|J\)|J|f|£|#|\$|Sf|af|ſ)\s+(?=\p{L})|2\s+(?=\p{Ll}))")]
+    private static partial Regex LeadingNoteRegex();
+
+    [GeneratedRegex(@"(?<=\p{L}[.,!?]?)\s+(?:tf|ff|Jf|J|f|£|#|\$|ſ)$")]
+    private static partial Regex TrailingNoteRegex();
 }
