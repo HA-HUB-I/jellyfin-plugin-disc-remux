@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Disc Remux</title>
+</head>
+<body>
+    <div id="DiscRemuxConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox,emby-textarea">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="DiscRemuxConfigForm">
+                    <div class="verticalSection">
+                        <h2 class="sectionTitle">Disc Remux</h2>
+                        <p>Turns DVD folder rips (<code>VIDEO_TS</code>) and single <code>VTS_xx_x.VOB</code> files imported by Radarr/Sonarr into one MKV.
+                        Run it from <b>Dashboard → Scheduled Tasks → Disc Remux</b>.</p>
+                    </div>
+
+                    <h3>Where to look</h3>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="ScanLibraries" type="checkbox" is="emby-checkbox" />
+                            <span>Scan all video libraries</span>
+                        </label>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="textareaLabel" for="SourcePaths">Source folders (one per line)</label>
+                        <textarea id="SourcePaths" is="emby-textarea" rows="3" placeholder="/mnt/media/downloads"></textarea>
+                        <div class="fieldDescription">Download folders that still hold the complete disc. Used when Radarr/Sonarr imported only one VOB. Nothing in these folders is changed.</div>
+                    </div>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="ProcessOnItemAdded" type="checkbox" is="emby-checkbox" />
+                            <span>Process a disc as soon as a VOB is added to the library</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">Recommended: the download client may delete the full disc later.</div>
+                    </div>
+
+                    <h3>Audio</h3>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="AddStereoAac" type="checkbox" is="emby-checkbox" />
+                            <span>Add a stereo AAC track as the default audio</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">Plays on every TV/phone without transcoding. The original tracks are kept.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="AacBitrate">AAC bitrate (kbit/s)</label>
+                        <input id="AacBitrate" type="number" is="emby-input" min="64" max="512" />
+                    </div>
+
+                    <h3>Subtitles</h3>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="OcrSubtitles" type="checkbox" is="emby-checkbox" />
+                            <span>Convert DVD subtitles to SRT with OCR (needs <code>tesseract</code> and its language packs)</span>
+                        </label>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="OcrLanguages">OCR languages</label>
+                        <input id="OcrLanguages" type="text" is="emby-input" />
+                        <div class="fieldDescription">Empty = every subtitle language that has an installed tesseract model (recommended). Or limit it with ISO 639-1 codes, e.g. <code>bg,en</code>. Other languages stay as bitmap tracks in the MKV.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="DefaultSubtitleLanguage">Default subtitle language</label>
+                        <input id="DefaultSubtitleLanguage" type="text" is="emby-input" />
+                        <div class="fieldDescription">Its SRT is named <code>.default.srt</code> so clients turn it on. Empty = none.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="TesseractPath">tesseract executable</label>
+                        <input id="TesseractPath" type="text" is="emby-input" />
+                    </div>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="DropConvertedBitmapSubtitles" type="checkbox" is="emby-checkbox" />
+                            <span>Drop bitmap tracks that were converted to SRT</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">Stops clients from picking the bitmap track instead of the SRT.</div>
+                    </div>
+
+                    <h3>Safety</h3>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="TrashPath">Move replaced files to</label>
+                        <input id="TrashPath" type="text" is="emby-input" />
+                        <div class="fieldDescription">Empty = a hidden <code>.disc-remux-original</code> folder next to the movie. Nothing is ever deleted.</div>
+                    </div>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="DryRun" type="checkbox" is="emby-checkbox" />
+                            <span>Dry run (only log what would be done)</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            (function () {
+                var pluginId = '1bad9bcc-8666-46aa-a223-3d700d7b1fa2';
+                var checks = ['ScanLibraries', 'ProcessOnItemAdded', 'AddStereoAac', 'OcrSubtitles', 'DropConvertedBitmapSubtitles', 'DryRun'];
+                var texts = ['SourcePaths', 'AacBitrate', 'OcrLanguages', 'DefaultSubtitleLanguage', 'TesseractPath', 'TrashPath'];
+                var page = document.querySelector('#DiscRemuxConfigPage');
+
+                page.addEventListener('pageshow', function () {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                        checks.forEach(function (k) { page.querySelector('#' + k).checked = config[k]; });
+                        texts.forEach(function (k) { page.querySelector('#' + k).value = config[k] == null ? '' : config[k]; });
+                        Dashboard.hideLoadingMsg();
+                    });
+                });
+
+                page.querySelector('#DiscRemuxConfigForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                        checks.forEach(function (k) { config[k] = page.querySelector('#' + k).checked; });
+                        texts.forEach(function (k) { config[k] = page.querySelector('#' + k).value; });
+                        config.AacBitrate = parseInt(config.AacBitrate, 10) || 192;
+                        ApiClient.updatePluginConfiguration(pluginId, config).then(function (result) {
+                            Dashboard.processPluginConfigurationUpdateResult(result);
+                        });
+                    });
+                    return false;
+                });
+            })();
+        </script>
+    </div>
+</body>
+</html>

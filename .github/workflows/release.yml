@@ -1,0 +1,76 @@
+name: Release
+
+# Push a tag like v0.2.0 to build, test, publish a GitHub release with the plugin zip
+# and add the version to manifest.json (the Jellyfin plugin repository).
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+env:
+  TARGET_ABI: '12.2.0.0'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Version from tag
+        id: v
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          echo "semver=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$tag.0" >> "$GITHUB_OUTPUT"
+
+      - name: Test
+        run: dotnet test -c Release
+
+      - name: Build plugin
+        run: |
+          dotnet publish Jellyfin.Plugin.DiscRemux/Jellyfin.Plugin.DiscRemux.csproj -c Release -o publish \
+            -p:Version=${{ steps.v.outputs.version }} -p:AssemblyVersion=${{ steps.v.outputs.version }} -p:FileVersion=${{ steps.v.outputs.version }}
+          mkdir -p artifacts
+          zip -j "artifacts/disc-remux_${{ steps.v.outputs.version }}.zip" publish/Jellyfin.Plugin.DiscRemux.dll
+
+      - name: Changelog
+        id: log
+        run: |
+          prev=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          range=${prev:+$prev..}${GITHUB_REF_NAME}
+          {
+            echo 'text<<EOF'
+            git log --no-merges --format='- %s' "$range"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NOTES: ${{ steps.log.outputs.text }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "artifacts/disc-remux_${{ steps.v.outputs.version }}.zip" \
+            --title "Disc Remux ${{ steps.v.outputs.semver }}" --notes "$NOTES"
+
+      - name: Update manifest.json
+        env:
+          CHANGELOG: ${{ steps.log.outputs.text }}
+        run: |
+          git fetch origin main
+          git checkout main
+          python3 scripts/update_manifest.py manifest.json "${{ steps.v.outputs.version }}" "$TARGET_ABI" \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/disc-remux_${{ steps.v.outputs.version }}.zip" \
+            "artifacts/disc-remux_${{ steps.v.outputs.version }}.zip" "$CHANGELOG"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "manifest: ${{ steps.v.outputs.version }}"
+          git push origin main

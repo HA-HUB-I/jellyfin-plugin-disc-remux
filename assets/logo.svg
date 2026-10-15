@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f1729"/>
+      <stop offset="1" stop-color="#1b2a4a"/>
+    </linearGradient>
+    <radialGradient id="disc" cx="0.38" cy="0.35" r="0.75">
+      <stop offset="0" stop-color="#f4f7fb"/>
+      <stop offset="0.45" stop-color="#b9c6d8"/>
+      <stop offset="1" stop-color="#7d8ca3"/>
+    </radialGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff8a5c" stop-opacity="0.75"/>
+      <stop offset="0.35" stop-color="#ffd166" stop-opacity="0.55"/>
+      <stop offset="0.65" stop-color="#4fd1c5" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#7f8cff" stop-opacity="0.7"/>
+    </linearGradient>
+    <linearGradient id="mkv" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2ec4b6"/>
+      <stop offset="1" stop-color="#3a86ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <!-- DVD -->
+  <g transform="translate(250 330)">
+    <circle r="170" fill="url(#disc)"/>
+    <circle r="170" fill="url(#sheen)"/>
+    <circle r="150" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2"/>
+    <circle r="110" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"/>
+    <circle r="52" fill="#d9e1ec"/>
+    <circle r="24" fill="#0f1729"/>
+    <text y="-80" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#0f1729" fill-opacity="0.65">DVD</text>
+  </g>
+
+  <!-- split VOB parts -->
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#0f1729" text-anchor="middle">
+    <rect x="470" y="220" width="130" height="56" rx="10" fill="#ffd166"/>
+    <text x="535" y="256">VOB 1</text>
+    <rect x="470" y="302" width="130" height="56" rx="10" fill="#ffb86b"/>
+    <text x="535" y="338">VOB 2</text>
+    <rect x="470" y="384" width="130" height="56" rx="10" fill="#ff8a5c"/>
+    <text x="535" y="420">VOB 3</text>
+  </g>
+
+  <!-- merge arrows -->
+  <g fill="none" stroke="#e8eef7" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.85">
+    <path d="M612 248 C 680 248, 680 330, 740 330"/>
+    <path d="M612 330 L 740 330"/>
+    <path d="M612 412 C 680 412, 680 330, 740 330"/>
+    <path d="M722 312 L 748 330 L 722 348"/>
+  </g>
+
+  <!-- single MKV film strip -->
+  <g transform="translate(770 236)">
+    <rect width="300" height="188" rx="18" fill="url(#mkv)"/>
+    <g fill="#0f1729" fill-opacity="0.55">
+      <rect x="18" y="14" width="22" height="16" rx="3"/><rect x="62" y="14" width="22" height="16" rx="3"/>
+      <rect x="106" y="14" width="22" height="16" rx="3"/><rect x="150" y="14" width="22" height="16" rx="3"/>
+      <rect x="194" y="14" width="22" height="16" rx="3"/><rect x="238" y="14" width="22" height="16" rx="3"/>
+      <rect x="18" y="158" width="22" height="16" rx="3"/><rect x="62" y="158" width="22" height="16" rx="3"/>
+      <rect x="106" y="158" width="22" height="16" rx="3"/><rect x="150" y="158" width="22" height="16" rx="3"/>
+      <rect x="194" y="158" width="22" height="16" rx="3"/><rect x="238" y="158" width="22" height="16" rx="3"/>
+    </g>
+    <text x="150" y="112" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="900" fill="#ffffff">MKV</text>
+  </g>
+
+  <!-- title -->
+  <text x="640" y="580" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="88" font-weight="800" fill="#ffffff">Disc Remux</text>
+  <text x="640" y="640" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="500" fill="#9fb3cf">DVD rips → one MKV · stereo AAC · OCR subtitles to SRT</text>
+</svg>
