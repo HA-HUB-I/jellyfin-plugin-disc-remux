@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "guid": "1bad9bcc-8666-46aa-a223-3d700d7b1fa2",
+    "name": "Disc Remux",
+    "overview": "Turn DVD rips (VIDEO_TS, split VOB imports) into one client-friendly MKV",
+    "description": "Finds VIDEO_TS folders and single VTS_xx_x.VOB files imported by Radarr/Sonarr, joins the main title into one MKV without re-encoding the video, adds a stereo AAC default track and converts DVD bitmap subtitles to SRT with tesseract OCR.",
+    "owner": "HA-HUB-I",
+    "category": "General",
+    "imageUrl": "https://raw.githubusercontent.com/HA-HUB-I/jellyfin-plugin-disc-remux/main/assets/logo.png",
+    "versions": [
+      {
+        "version": "0.1.0.0",
+        "changelog": "- OCR: restore ♪ in song lines, universal language defaults, logo, full README\n- Disc Remux 0.1.0: DVD rips to a single MKV for Jellyfin",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/HA-HUB-I/jellyfin-plugin-disc-remux/releases/download/v0.1.0/disc-remux_0.1.0.0.zip",
+        "checksum": "9c88913b22f4516e8f7af4f4a00f3cfe",
+        "timestamp": "2026-10-16T00:02:10Z"
+      }
+    ]
+  }
+]
